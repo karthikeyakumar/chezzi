@@ -7,17 +7,21 @@ const AICoachChat = ({
   coachPersonality = 'encouraging',
   onSendMessage,
   isVoiceEnabled = false,
-  onToggleVoice, meta
+  onToggleVoice,
+  messages, // Add messages prop
+  setMessages, // Add setMessages prop
+  meta
 }) => {
-  const [messages, setMessages] = useState([
-  {
-    id: 1,
-    sender: 'coach',
-    content: `Hello! I'm your AI chess coach powered by Gemini. I'm here to help you improve your game with personalized guidance and explanations. Let's start with the opening moves - what's your preferred opening style?`,
-    timestamp: new Date(Date.now() - 300000),
-    type: 'text'
-  }]
-  );
+  // Remove local messages state, it will be managed by parent
+  // const [messages, setMessages] = useState([
+  // {
+  //   id: 1,
+  //   sender: 'coach',
+  //   content: `Hello! I'm your AI chess coach powered by Gemini. I'm here to help you improve your game with personalized guidance and explanations. Let's start with the opening moves - what's your preferred opening style?`,
+  //   timestamp: new Date(Date.now() - 300000),
+  //   type: 'text'
+  // }]
+  // );
 
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -94,7 +98,9 @@ const AICoachChat = ({
         (chunk) => {
           accumulatedResponse += chunk;
           setStreamingMessage(accumulatedResponse);
-        }
+        },
+        isVoiceEnabled,
+        handleVoicePlay
       );
 
       // Create the final AI message
@@ -117,7 +123,7 @@ const AICoachChat = ({
       // Fallback to non-streaming response
       try {
         const response = await generateCoachResponse(currentInput, coachPersonality, messages);
-
+ 
         const aiMessage = {
           id: Date.now() + 1,
           sender: 'coach',

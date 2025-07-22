@@ -34,7 +34,15 @@ const MainGameInterface = () => {
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
   const [isVoicePlaying, setIsVoicePlaying] = useState(false);
   const [coachPersonality, setCoachPersonality] = useState('encouraging');
-  const [coachMessages, setCoachMessages] = useState([]); // Add this state
+  const [coachMessages, setCoachMessages] = useState([
+    {
+      id: 1,
+      sender: 'coach',
+      content: `Hello! I'm your AI chess coach powered by Gemini. I'm here to help you improve your game with personalized guidance and explanations. Let's start with the opening moves - what's your preferred opening style?`,
+      timestamp: new Date(Date.now() - 300000),
+      type: 'text'
+    }
+  ]);
   
   // Mock user data
   const [user] = useState({
@@ -141,13 +149,20 @@ const MainGameInterface = () => {
     setIsVoiceEnabled(!isVoiceEnabled);
   };
 
-  const handleVoicePlay = (text, options) => {
-    setIsVoicePlaying(true);
-    console.log('Playing voice:', text, options);
-    // Mock voice playback
-    setTimeout(() => {
+  const handleVoicePlay = (text) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onstart = () => setIsVoicePlaying(true);
+      utterance.onend = () => setIsVoicePlaying(false);
+      utterance.onerror = (event) => {
+        console.error('SpeechSynthesisUtterance error:', event);
+        setIsVoicePlaying(false);
+      };
+      window.speechSynthesis.speak(utterance);
+    } else {
+      console.warn('Web Speech API not supported in this browser.');
       setIsVoicePlaying(false);
-    }, 5000);
+    }
   };
 
   const handleVoicePause = () => {
@@ -330,6 +345,8 @@ const MainGameInterface = () => {
                     onSendMessage={handleSendMessage}
                     isVoiceEnabled={isVoiceEnabled}
                     onToggleVoice={handleVoiceToggle}
+                    messages={coachMessages}
+                    setMessages={setCoachMessages}
                   />
                 </div>
 
@@ -356,6 +373,8 @@ const MainGameInterface = () => {
                     onSendMessage={handleSendMessage}
                     isVoiceEnabled={isVoiceEnabled}
                     onToggleVoice={handleVoiceToggle}
+                    messages={coachMessages}
+                    setMessages={setCoachMessages}
                   />
                 </div>
               )}
