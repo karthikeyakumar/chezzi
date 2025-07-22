@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core System Colors */
+    --color-background: #FEFCF8; /* warm off-white */
+    --color-foreground: #2C1810; /* rich dark brown */
+    --color-border: #D2B48C; /* light tan */
+    --color-input: #F5F2ED; /* subtle cream */
+    --color-ring: #4A90E2; /* confident blue */
+    --color-card: #F5F2ED; /* subtle cream */
+    --color-card-foreground: #2C1810; /* rich dark brown */
+    --color-popover: #F5F2ED; /* subtle cream */
+    --color-popover-foreground: #2C1810; /* rich dark brown */
+    --color-muted: #D2B48C; /* light tan */
+    --color-muted-foreground: #6B5B4F; /* medium brown */
+
+    /* Brand Colors */
+    --color-primary: #8B4513; /* warm brown */
+    --color-primary-foreground: #FEFCF8; /* warm off-white */
+    --color-secondary: #D2B48C; /* light tan */
+    --color-secondary-foreground: #2C1810; /* rich dark brown */
+
+    /* State Colors */
+    --color-destructive: #D9534F; /* muted red */
+    --color-destructive-foreground: #FEFCF8; /* warm off-white */
+    --color-accent: #4A90E2; /* confident blue */
+    --color-accent-foreground: #FEFCF8; /* warm off-white */
+    --color-success: #5CB85C; /* natural green */
+    --color-success-foreground: #FEFCF8; /* warm off-white */
+    --color-warning: #F0AD4E; /* gentle amber */
+    --color-warning-foreground: #2C1810; /* rich dark brown */
+    --color-error: #D9534F; /* muted red */
+    --color-error-foreground: #FEFCF8; /* warm off-white */
+
+    /* Shadow Variables */
+    --shadow-subtle: 0 2px 8px rgba(139, 69, 19, 0.1);
+    --shadow-moderate: 0 4px 12px rgba(139, 69, 19, 0.1);
+    --shadow-prominent: 0 8px 24px rgba(139, 69, 19, 0.1);
+
+    /* Animation Variables */
+    --ease-gentle: cubic-bezier(0.4, 0, 0.2, 1);
+    --duration-fast: 200ms;
+    --duration-normal: 300ms;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Typography Styles */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+  }
+
+  body, p, span, div {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+
+  .font-caption {
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Custom Animation Classes */
+  .animate-gentle-pulse {
+    animation: gentle-pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .animate-micro-celebration {
+    animation: micro-celebration 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes gentle-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.02);
+    }
+  }
+
+  @keyframes micro-celebration {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Contextual Coaching Overlay Styles */
+  .coaching-overlay {
+    transition: opacity var(--duration-normal) var(--ease-gentle),
+                transform var(--duration-normal) var(--ease-gentle);
+  }
+
+  .coaching-overlay.hidden {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+  }
+
+  /* Progressive Move Highlighting */
+  .move-highlight {
+    transition: all var(--duration-normal) var(--ease-gentle);
+  }
+
+  .move-highlight.active {
+    box-shadow: 0 0 0 2px var(--color-accent);
+    transform: scale(1.02);
+  }
+
+  /* Adaptive Complexity Layers */
+  .complexity-layer {
+    transition: height var(--duration-normal) var(--ease-gentle),
+                opacity var(--duration-fast) var(--ease-gentle);
+    overflow: hidden;
+  }
+
+  .complexity-layer.collapsed {
+    height: 0;
+    opacity: 0;
+  }
+}
