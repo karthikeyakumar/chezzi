@@ -51,6 +51,44 @@
     --duration-normal: 300ms;
   }
 
+  html.dark {
+    /* Core System Colors */
+    --color-background: #1A1A1A; /* Dark background */
+    --color-foreground: #E0E0E0; /* Light foreground */
+    --color-border: #4A4A4A; /* Darker border */
+    --color-input: #2C2C2C; /* Dark input */
+    --color-ring: #6A9EEB; /* Lighter blue */
+    --color-card: #2C2C2C; /* Dark card */
+    --color-card-foreground: #E0E0E0; /* Light card foreground */
+    --color-popover: #2C2C2C; /* Dark popover */
+    --color-popover-foreground: #E0E0E0; /* Light popover foreground */
+    --color-muted: #4A4A4A; /* Dark muted */
+    --color-muted-foreground: #A0A0A0; /* Lighter muted foreground */
+
+    /* Brand Colors */
+    --color-primary: #A0522D; /* Darker warm brown */
+    --color-primary-foreground: #E0E0E0; /* Light warm off-white */
+    --color-secondary: #4A4A4A; /* Darker light tan */
+    --color-secondary-foreground: #E0E0E0; /* Light rich dark brown */
+
+    /* State Colors */
+    --color-destructive: #E57373; /* Lighter muted red */
+    --color-destructive-foreground: #1A1A1A; /* Dark warm off-white */
+    --color-accent: #6A9EEB; /* Lighter confident blue */
+    --color-accent-foreground: #1A1A1A; /* Dark warm off-white */
+    --color-success: #81C784; /* Lighter natural green */
+    --color-success-foreground: #1A1A1A; /* Dark warm off-white */
+    --color-warning: #FFB74D; /* Lighter gentle amber */
+    --color-warning-foreground: #1A1A1A; /* Dark rich dark brown */
+    --color-error: #E57373; /* Lighter muted red */
+    --color-error-foreground: #1A1A1A; /* Dark warm off-white */
+
+    /* Shadow Variables */
+    --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-moderate: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-prominent: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+
   * {
     @apply border-border;
   }

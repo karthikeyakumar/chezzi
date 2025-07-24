@@ -352,11 +352,11 @@ const AICoachChat = ({
         </div>
         
         {/* API Key Warning */}
-        {!import.meta.env.VITE_GEMINI_API_KEY &&
+        {!import.meta.env.VITE_GEMINI_API_KEY && !import.meta.env.VITE_OPENAI_API_KEY && !import.meta.env.VITE_OPENROUTER_API_KEY &&
         <div className="mt-2 p-2 bg-warning/10 border border-warning/20 rounded-lg">
             <div className="flex items-center space-x-2 text-xs text-warning-foreground">
               <Icon name="AlertTriangle" size={12} />
-              <span>Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your environment variables.</span>
+              <span>No AI API key configured. Please add VITE_GEMINI_API_KEY, VITE_OPENAI_API_KEY, or VITE_OPENROUTER_API_KEY to your environment variables.</span>
             </div>
           </div>
         }

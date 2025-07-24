@@ -1,4 +1,4 @@
-import genAI from './geminiClient';
+import aiService from "./aiService";
 
 /**
  * Generates a conversational text response for chess coaching.
@@ -7,54 +7,26 @@ import genAI from './geminiClient';
  * @param {Array} chatHistory - Previous conversation history for context.
  * @returns {Promise<string>} The generated coaching response.
  */
-export async function generateCoachResponse(prompt, coachPersonality = 'encouraging', chatHistory = []) {
+export async function generateCoachResponse(
+  prompt,
+  coachPersonality = "encouraging",
+  chatHistory = []
+) {
   try {
-    if (!import.meta.env.VITE_GEMINI_API_KEY) {
-      throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your environment variables.');
-    }
-
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        temperature: 0.9, // Higher temperature for more natural, varied responses
-        topP: 0.85,
-        maxOutputTokens: 150, // Shorter responses for conversational feel
-      }
+    const response = await aiService.generateContent(prompt, chatHistory, {
+      coachPersonality,
     });
-
-    // Create personality-based system prompt with conversational tone
-    const personalityPrompts = {
-      encouraging: "You're Coach Elena, a super upbeat chess coach! Talk like a friendly mentor, keep it short and lively, and pump up the student's confidence. Use casual language, like you're chatting with a friend.",
-      analytical: "You're Master Viktor, a sharp chess coach who loves breaking things down. Keep it clear, concise, and nerd out a bit on tactics, but sound like you're explaining it over coffee.",
-      patient: "You're Coach Sarah, a calm and kind chess coach. Explain things simply, step by step, like you're guiding a friend with patience and a smile.",
-      challenging: "You're Grandmaster Alex, a bold chess coach who pushes hard! Be direct, call out mistakes constructively, and motivate like a tough but fair mentor."
-    };
-
-    const systemPrompt = personalityPrompts[coachPersonality] || personalityPrompts.encouraging;
-    
-    // Build conversation context
-    let contextualPrompt = `${systemPrompt}\n\nKeep your response short, conversational, and under 50 words. Avoid long paragraphs. Sound human and engaging for text-to-speech. Here's the chat so far:\n`;
-    
-    // Add recent chat history for context (last 4 messages for brevity)
-    const recentHistory = chatHistory.slice(-4);
-    recentHistory.forEach(msg => {
-      const role = msg.sender === 'user' ? 'Student' : 'Coach';
-      contextualPrompt += `${role}: ${msg.content}\n`;
-    });
-    
-    contextualPrompt += `Student: ${prompt}\nCoach:`;
-
-    const result = await model.generateContent(contextualPrompt);
-    const response = await result.response;
-    console.log('Generated response:', response.text());
-    return response.text();
+    console.log("Generated response:", response);
+    return response;
   } catch (error) {
-    console.error('Error in Gemini coach response generation:', error);
-    
+    console.error("Error in coach response generation:", error);
     // Conversational fallback responses
-    if (error.message?.includes('API key')) {
+    if (error.message?.includes("API key")) {
       return "Oops, my coaching system's down! Check the API setup and try again.";
-    } else if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
+    } else if (
+      error.message?.includes("quota") ||
+      error.message?.includes("rate limit")
+    ) {
       return "Hang on, I'm catching my breath! Try again in a sec.";
     } else {
       return "Hmm, something's off. Here's a quick tip: Keep your king safe and pieces active!";
@@ -68,54 +40,31 @@ export async function generateCoachResponse(prompt, coachPersonality = 'encourag
  * @param {string} coachPersonality - The coaching personality type.
  * @param {Array} chatHistory - Previous conversation history for context.
  * @param {Function} onChunk - Callback to handle each streamed chunk.
+ * @param {boolean} isVoiceEnabled - Whether voice playback is enabled.
+ * @param {Function} handleVoicePlay - Callback to play voice.
  */
-export async function streamCoachResponse(prompt, coachPersonality = 'encouraging', chatHistory = [], onChunk, isVoiceEnabled, handleVoicePlay) {
+export async function streamCoachResponse(
+  prompt,
+  coachPersonality = "encouraging",
+  chatHistory = [],
+  onChunk,
+  isVoiceEnabled,
+  handleVoicePlay
+) {
   try {
-    if (!import.meta.env.VITE_GEMINI_API_KEY) {
-      throw new Error('Gemini API key not configured');
-    }
-
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        temperature: 0.9, // More natural tone
-        topP: 0.85,
-        maxOutputTokens: 150, // Keep it short
-      }
-    });
-
-    const personalityPrompts = {
-      encouraging: "You're Coach Elena, a super upbeat chess coach! Talk like a friendly mentor, keep it short and lively, and pump up the student's confidence. Use casual language, like you're chatting with a friend.",
-      analytical: "You're Master Viktor, a sharp chess coach who loves breaking things down. Keep it clear, concise, and nerd out a bit on tactics, but sound like you're explaining it over coffee.",
-      patient: "You're Coach Sarah, a calm and kind chess coach. Explain things simply, step by step, like you're guiding a friend with patience and a smile.",
-      challenging: "You're Grandmaster Alex, a bold chess coach who pushes hard! Be direct, call out mistakes constructively, and motivate like a tough but fair mentor."
-    };
-
-    const systemPrompt = personalityPrompts[coachPersonality] || personalityPrompts.encouraging;
-    
-    let contextualPrompt = `${systemPrompt}\n\nKeep your response short, conversational, and under 50 words. Avoid long paragraphs. Sound human and engaging for text-to-speech. Here's the chat so far:\n`;
-    
-    const recentHistory = chatHistory.slice(-4);
-    recentHistory.forEach(msg => {
-      const role = msg.sender === 'user' ? 'Student' : 'Coach';
-      contextualPrompt += `${role}: ${msg.content}\n`;
-    });
-    
-    contextualPrompt += `Student: ${prompt}\nCoach:`;
-
-    const result = await model.generateContentStream(contextualPrompt);
-
-    for await (const chunk of result.stream) {
-      const text = chunk.text();
-      if (text) {
-        onChunk(text);
+    await aiService.streamContent(
+      prompt,
+      (chunk) => {
+        onChunk(chunk);
         if (isVoiceEnabled && handleVoicePlay) {
-          handleVoicePlay(text);
+          handleVoicePlay(chunk);
         }
-      }
-    }
+      },
+      chatHistory,
+      { coachPersonality }
+    );
   } catch (error) {
-    console.error('Error in streaming Gemini coach response:', error);
+    console.error("Error in streaming coach response:", error);
     onChunk("Whoops, something's up! Try again in a moment.");
   }
 }
@@ -126,27 +75,85 @@ export async function streamCoachResponse(prompt, coachPersonality = 'encouragin
  * @param {string} playerLevel - Player's skill level (beginner, intermediate, advanced).
  * @returns {Promise<string>} Generated coaching tip.
  */
-export async function generateCoachingTip(gameContext, playerLevel = 'intermediate') {
+export async function generateCoachingTip(
+  gameContext,
+  playerLevel = "intermediate"
+) {
   try {
-    if (!import.meta.env.VITE_GEMINI_API_KEY) {
-      throw new Error('Gemini API key not configured');
-    }
-
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        temperature: 0.8, // Slightly higher for natural tone
-        maxOutputTokens: 50, // Short for TTS
-      }
-    });
-
     const prompt = `You're a chess coach for a ${playerLevel} player. Based on this game context: ${gameContext}, give a short, conversational tip (under 40 words). Sound like a friend giving quick, actionable advice. Avoid lists or formal formatting.`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
+    const response = await aiService.generateContent(
+      prompt,
+      [], // No chat history needed for a single tip
+      { model: "gemini-1.5-flash" } // Can specify model if needed for tips
+    );
+    return response;
   } catch (error) {
-    console.error('Error generating coaching tip:', error);
+    console.error("Error generating coaching tip:", error);
     return "Hey, try controlling the center with your pawns! It opens up your game.";
   }
 }
+
+/**
+ * Generates a chess move for the AI coach.
+ * @param {string} fen - The current FEN string of the chessboard.
+ * @param {string} coachPersonality - The coaching personality type.
+ * @returns {Promise<string>} The generated chess move in SAN format.
+ */
+export async function generateAIMove(pgn, coachPersonality = "encouraging") {
+  // Early fallback if PGN is missing or empty
+  if (!pgn.trim()) {
+    console.warn("PGN is empty — returning default move: e4.");
+    return "e4";
+  }
+
+  const prompt = `You are a strict chess move generator.
+
+Given this PGN:
+${pgn}
+
+Return ONLY a JSON object with a single "move" field containing the best next move in Standard Algebraic Notation (SAN), like {"move": "e4"}.
+
+⚠️ DO NOT include any commentary, encouragement, greetings, or extra text. Do NOT prefix or suffix with anything. This will be parsed directly. Example response: {"move": "Nf3"}
+
+If no legal move exists, respond with: {"move": "none"}
+`;
+
+  try {
+    const response = await aiService.generateContent(prompt, [], {
+      maxOutputTokens: 20,
+      temperature: 0.1, // makes output more deterministic
+    });
+
+    const trimmed = typeof response === "string" ? response.trim() : "";
+    const jsonMatch = trimmed.match(/\{[^}]+\}/);
+
+    if (!jsonMatch) {
+      throw new Error(`No valid JSON object found in response: "${trimmed}"`);
+    }
+
+    const json = JSON.parse(jsonMatch[0]);
+    const move = json?.move;
+
+    if (!move || typeof move !== "string") {
+      throw new Error(`Missing or invalid "move" field in response: ${JSON.stringify(json)}`);
+    }
+
+    if (move === "none") {
+      throw new Error("No legal move available for this position");
+    }
+
+    // Validate SAN (standard algebraic notation) using simple regex
+    const sanRegex = /^(O-O(-O)?|[NBKRQ]?[a-h]?[1-8]?x?[a-h][1-8](=[NBRQ])?[+#]?)$/;
+    if (!sanRegex.test(move)) {
+      throw new Error(`Invalid SAN move format: "${move}"`);
+    }
+
+    console.log("Generated move:", move);
+    return move;
+  } catch (error) {
+    console.error("Error generating AI move:", error.message);
+    return null;
+  }
+}
+
+

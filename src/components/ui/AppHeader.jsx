@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Icon from '../AppIcon';
 import Button from './Button';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const AppHeader = ({ user, onLogout, onOpenSettings }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const isAuthenticated = !!user;
   const isAuthPage = ['/login', '/register'].includes(location.pathname);
@@ -99,6 +101,17 @@ const AppHeader = ({ user, onLogout, onOpenSettings }) => {
               title="Settings & Preferences"
             >
               <Icon name="Settings" size={20} />
+            </Button>
+
+            {/* Theme Toggle Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="text-muted-foreground hover:text-foreground"
+              title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            >
+              <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
             </Button>
 
             {/* User Menu */}

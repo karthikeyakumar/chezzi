@@ -260,8 +260,8 @@ const ChessBoard = ({
             arePiecesDraggable={isPlayerTurn}
             animationDuration={animateMovements ? 200 : 0}
             showBoardNotation={showCoordinates}
-            customDarkSquareStyle={{ backgroundColor: '#b58863' }}
-            customLightSquareStyle={{ backgroundColor: '#f0d9b5' }}
+            customDarkSquareStyle={{ backgroundColor: '#769656' }}
+            customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
             customDropSquareStyle={{
               boxShadow: 'inset 0 0 1px 6px rgba(255,255,255,0.75)'
             }}
